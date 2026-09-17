@@ -1,4 +1,4 @@
-import { Menu, ChevronDown } from 'lucide-react';
+import { Menu, ChevronDown, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { Employee, Role } from '@/types';
 import { ROLES, ROLE_COLORS } from '@/lib/constants';
@@ -12,6 +12,7 @@ interface TopBarProps {
   onEmployeeChange: (emp: Employee) => void;
   onMenuClick: () => void;
   pageTitle: string;
+  onLogout?: () => void;
 }
 
 export function TopBar({
@@ -22,6 +23,7 @@ export function TopBar({
   onEmployeeChange,
   onMenuClick,
   pageTitle,
+  onLogout,
 }: TopBarProps) {
   const [roleOpen, setRoleOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
@@ -133,6 +135,18 @@ export function TopBar({
             </div>
           )}
         </div>
+
+        {/* Logout button */}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        )}
       </div>
     </header>
   );

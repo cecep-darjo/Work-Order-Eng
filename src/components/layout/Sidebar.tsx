@@ -8,6 +8,7 @@ import {
   Clock,
   FileBarChart,
   Database,
+  Settings,
   Settings2,
   X,
 } from 'lucide-react';
@@ -19,9 +20,10 @@ interface SidebarProps {
   onNavigate: (page: PageKey) => void;
   open: boolean;
   onClose: () => void;
+  currentRole?: string;
 }
 
-const NAV_ITEMS: { key: PageKey; label: string; icon: typeof LayoutDashboard }[] = [
+const NAV_ITEMS: { key: PageKey; label: string; icon: typeof LayoutDashboard; adminOnly?: boolean }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { key: 'work-orders', label: 'Work Order', icon: ClipboardList },
   { key: 'new-wo', label: 'New WO', icon: FilePlus2 },
@@ -31,9 +33,10 @@ const NAV_ITEMS: { key: PageKey; label: string; icon: typeof LayoutDashboard }[]
   { key: 'aging', label: 'Aging', icon: Clock },
   { key: 'report', label: 'Report', icon: FileBarChart },
   { key: 'master-data', label: 'Master Data', icon: Database },
+  { key: 'settings', label: 'Pengaturan', icon: Settings, adminOnly: true },
 ];
 
-export function Sidebar({ currentPage, onNavigate, open, onClose }: SidebarProps) {
+export function Sidebar({ currentPage, onNavigate, open, onClose, currentRole }: SidebarProps) {
   return (
     <>
       {open && (
@@ -70,6 +73,11 @@ export function Sidebar({ currentPage, onNavigate, open, onClose }: SidebarProps
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {NAV_ITEMS.map((item) => {
+            // Tampilkan menu settings hanya untuk admin
+            if (item.adminOnly && currentRole !== 'Admin') {
+              return null;
+            }
+
             const Icon = item.icon;
             const active = currentPage === item.key;
             return (

@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import type { Employee, Role } from '@/types';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/TopBar';
+import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { WorkOrders } from '@/pages/WorkOrders';
 import { NewWorkOrder } from '@/pages/NewWorkOrder';
@@ -12,6 +13,7 @@ import { PendingPage } from '@/pages/PendingPage';
 import { AgingPage } from '@/pages/AgingPage';
 import { ReportPage } from '@/pages/ReportPage';
 import { MasterDataPage } from '@/pages/MasterDataPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 
 export type PageKey =
   | 'dashboard'
@@ -22,7 +24,8 @@ export type PageKey =
   | 'pending'
   | 'aging'
   | 'report'
-  | 'master-data';
+  | 'master-data'
+  | 'settings';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>('dashboard');
@@ -31,6 +34,8 @@ export default function App() {
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
   const [currentRole, setCurrentRole] = useState<Role>('Admin');
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInUsername, setLoggedInUsername] = useState<string>('');
 
   const fetchEmployees = useCallback(async () => {
     const { data } = await supabase
@@ -67,6 +72,21 @@ export default function App() {
     setSidebarOpen(false);
   };
 
+  const handleLogin = (username: string) => {
+    setLoggedInUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setLoggedInUsername('');
+    setCurrentPage('dashboard');
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -85,6 +105,7 @@ export default function App() {
         onNavigate={navigate}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        currentRole={currentRole}
       />
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
         <TopBar
@@ -95,6 +116,7 @@ export default function App() {
           onEmployeeChange={setCurrentEmployee}
           onMenuClick={() => setSidebarOpen(true)}
           pageTitle={pageTitle(currentPage)}
+          onLogout={handleLogout}
         />
         <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">
           {renderPage(currentPage, {
@@ -121,6 +143,7 @@ function pageTitle(page: PageKey): string {
     'aging': 'Aging',
     'report': 'Report',
     'master-data': 'Master Data',
+    'settings': 'Pengaturan Admin',
   };
   return titles[page];
 }
@@ -168,6 +191,8 @@ function renderPage(page: PageKey, props: PageProps) {
           refreshEmployees={props.refreshEmployees}
         />
       );
+    case 'settings':
+      return <SettingsPage navigate={props.navigate} />;
     default:
       return <Dashboard navigate={props.navigate} />;
   }
