@@ -24,7 +24,7 @@ interface MasterDataPageProps {
   refreshEmployees: () => Promise<void>;
 }
 
-type Tab = 'departments' | 'employees' | 'equipment';
+type Tab = 'departments' | 'equipment';
 
 export function MasterDataPage({ employees, refreshEmployees }: MasterDataPageProps) {
   const [tab, setTab] = useState<Tab>('departments');
@@ -84,7 +84,6 @@ export function MasterDataPage({ employees, refreshEmployees }: MasterDataPagePr
       <div className="flex gap-1 border-b border-slate-200">
         {([
           { key: 'departments', label: 'Departments', icon: Building2, count: departments.length },
-          { key: 'employees', label: 'Employees', icon: Users, count: employees.length },
           { key: 'equipment', label: 'Equipment', icon: Boxes, count: equipment.length },
         ] as const).map((t) => {
           const Icon = t.icon;
@@ -116,7 +115,6 @@ export function MasterDataPage({ employees, refreshEmployees }: MasterDataPagePr
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">
           {tab === 'departments' && 'Daftar department yang menerima distribusi WO'}
-          {tab === 'employees' && 'Daftar karyawan dengan role dan department'}
           {tab === 'equipment' && 'Daftar equipment terdaftar'}
         </p>
         <button
@@ -175,67 +173,6 @@ export function MasterDataPage({ employees, refreshEmployees }: MasterDataPagePr
         </Card>
       )}
 
-      {/* Employees Table */}
-      {tab === 'employees' && (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Email</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {employees.map((e) => (
-                  <tr key={e.id} className="transition-colors hover:bg-slate-50/70">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-xs font-bold text-white">
-                          {e.name.charAt(0)}
-                        </div>
-                        <span className="font-semibold text-slate-800">{e.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={cn('rounded-md px-2 py-0.5 text-xs font-semibold', ROLE_COLORS[e.role])}>
-                        {e.role}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{e.department?.name || '-'}</td>
-                    <td className="px-4 py-3 text-slate-500">{e.email || '-'}</td>
-                    <td className="px-4 py-3">
-                      <span className={cn(
-                        'rounded-full px-2 py-0.5 text-xs font-medium',
-                        e.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                      )}>
-                        {e.is_active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-1">
-                        <button onClick={() => handleEdit({ ...e, _table: 'employees' })}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete('employees', e.id)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
-
       {/* Equipment Table */}
       {tab === 'equipment' && (
         <Card className="overflow-hidden">
@@ -247,7 +184,7 @@ export function MasterDataPage({ employees, refreshEmployees }: MasterDataPagePr
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Area</th>
                   <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Status</th>
+                  <th className="px-5 py-3">Status</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
