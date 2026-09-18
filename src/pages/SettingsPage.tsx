@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, EyeOff, Check, X, AlertCircle } from 'lucide-react';
 import type { Role } from '@/types';
 import type { PageKey } from '@/App';
 import { ROLES } from '@/lib/constants';
+import { validateUsername, validatePassword } from '@/lib/validation';
 
 interface AdminUser {
   id: string;
@@ -48,6 +49,8 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -73,6 +76,8 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         role: 'Technician',
       });
     }
+    setErrors([]);
+    setSuccessMessage('');
     setShowModal(true);
   };
 
@@ -85,21 +90,40 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
       password: '',
       role: 'Technician',
     });
+    setErrors([]);
+    setSuccessMessage('');
   };
 
   const handleSaveUser = () => {
-    if (!formData.username.trim() || !formData.password.trim()) {
-      alert('Username dan Password harus diisi!');
-      return;
+    const newErrors: string[] = [];
+
+    // Validasi username
+    if (!formData.username.trim()) {
+      newErrors.push('Username harus diisi');
+    } else {
+      const usernameValidation = validateUsername(formData.username);
+      if (!usernameValidation.isValid) {
+        newErrors.push(...usernameValidation.errors);
+      }
     }
 
-    if (formData.username.length < 6) {
-      alert('Username minimal 6 karakter');
-      return;
+    // Check if username already exists (except when editing)
+    if (!editingId && users.some((u) => u.username === formData.username)) {
+      newErrors.push('Username sudah digunakan');
     }
 
-    if (formData.password.length < 6) {
-      alert('Password minimal 6 karakter');
+    // Validasi password
+    if (!formData.password.trim()) {
+      newErrors.push('Password harus diisi');
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.push(...passwordValidation.errors);
+      }
+    }
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -117,6 +141,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
             : u
         )
       );
+      setSuccessMessage('User berhasil diperbarui!');
     } else {
       // Add new user
       const newUser: AdminUser = {
@@ -128,9 +153,12 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         createdAt: new Date().toISOString().split('T')[0],
       };
       setUsers([...users, newUser]);
+      setSuccessMessage('User berhasil ditambahkan!');
     }
 
-    handleCloseModal();
+    setTimeout(() => {
+      handleCloseModal();
+    }, 1500);
   };
 
   const handleDeleteUser = (id: string) => {
@@ -266,6 +294,30 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
               {editingId ? 'Edit User' : 'Tambah User Baru'}
             </h3>
 
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex gap-2 mb-2">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm font-semibold text-red-700">Validasi Gagal:</p>
+                </div>
+                <ul className="ml-7 space-y-1">
+                  {errors.map((error, index) => (
+                    <li key={index} className="text-sm text-red-600">
+                      • {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {successMessage && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-semibold text-green-700">✓ {successMessage}</p>
+              </div>
+            )}
+
             <div className="space-y-4">
               {/* Username */}
               <div>
@@ -281,6 +333,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
                   placeholder="Min 6 karakter, huruf + angka"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
+                <p className="text-xs text-slate-500 mt-1">Contoh: user123, admin456</p>
               </div>
 
               {/* Email */}
@@ -326,6 +379,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
                     )}
                   </button>
                 </div>
+                <p className="text-xs text-slate-500 mt-1">Contoh: pass123, secret456</p>
               </div>
 
               {/* Role */}
