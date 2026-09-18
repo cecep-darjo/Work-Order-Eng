@@ -10,22 +10,62 @@
 -- Sequence for WO numbers
 CREATE SEQUENCE IF NOT EXISTS wo_number_seq;
 
-CREATE OR REPLACE FUNCTION generate_wo_number()
+CREATE OR REPLACE FUNCTION generate_wo_number(dept_id uuid DEFAULT NULL)
 RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
   seq_val bigint;
+  dept_code text;
   wo_num text;
+  year_part text;
+  month_part text;
 BEGIN
+  -- 1. Get sequence value
   seq_val := nextval('wo_number_seq');
-  wo_num := 'WO-' || to_char(now(), 'YYYYMM') || '-' || lpad(seq_val::text, 4, '0');
+
+  -- 2. Get department code (bbb) - default to 'ENG' if not found or empty
+  IF dept_id IS NOT NULL THEN
+    SELECT COALESCE(code, 'ENG') INTO dept_code FROM departments WHERE id = dept_id;
+  ELSE
+    dept_code := 'ENG';
+  END IF;
+
+  -- Trim and limit length of department code to 3 characters in uppercase
+  dept_code := upper(substring(coalesce(dept_code, 'ENG') from 1 for 3));
+
+  -- 3. Get individual parts for date (aa and cc)
+  year_part := to_char(now(), 'YY'); -- aa (2-digit tahun)
+  month_part := to_char(now(), 'MM'); -- cc (2-digit bulan)
+
+  -- 4. Concatenate into WOaa/bbb/cc/dddd format
+  wo_num := 'WO' || year_part || '/' || dept_code || '/' || month_part || '/' || lpad(seq_val::text, 4, '0');
+
   RETURN wo_num;
 END;
 $$;
 
-ALTER TABLE work_orders ALTER COLUMN wo_number SET DEFAULT generate_wo_number();
+-- We don't rely only on column DEFAULT since the function needs department_id context on INSERT.
+-- Therefore, we will also create a BEFORE INSERT trigger on work_orders to ensure correct generation.
+CREATE OR REPLACE FUNCTION trg_set_wo_number()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NEW.wo_number IS NULL OR NEW.wo_number = '' OR NEW.wo_number LIKE 'WO-%' THEN
+    NEW.wo_number := generate_wo_number(NEW.department_id);
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_pre_insert_wo_number ON work_orders;
+CREATE TRIGGER trg_pre_insert_wo_number
+  BEFORE INSERT ON work_orders
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_set_wo_number();
 
 -- Status timestamp trigger
 CREATE OR REPLACE FUNCTION update_wo_status_timestamps()
