@@ -19,32 +19,47 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ navigate }: SettingsPageProps) {
-  const [users, setUsers] = useState<AdminUser[]>([
-    {
-      id: '1',
-      username: 'admin123',
-      email: 'admin@interbat.com',
-      role: 'Admin',
-      isActive: true,
-      createdAt: '2026-01-01',
-    },
-    {
-      id: '2',
-      username: 'manager456',
-      email: 'manager@interbat.com',
-      role: 'Manager',
-      isActive: true,
-      createdAt: '2026-01-15',
-    },
-    {
-      id: '3',
-      username: 'tech789',
-      email: 'tech@interbat.com',
-      role: 'Technician',
-      isActive: true,
-      createdAt: '2026-02-01',
-    },
-  ]);
+  const [users, setUsers] = useState<AdminUser[]>(() => {
+    const savedUsers = localStorage.getItem('admin_users');
+    if (savedUsers) {
+      try {
+        return JSON.parse(savedUsers);
+      } catch (e) {
+        console.error('Failed to parse admin_users from localStorage', e);
+      }
+    }
+    return [
+      {
+        id: '1',
+        username: 'admin123',
+        email: 'admin@interbat.com',
+        role: 'Admin',
+        isActive: true,
+        createdAt: '2026-01-01',
+      },
+      {
+        id: '2',
+        username: 'manager456',
+        email: 'manager@interbat.com',
+        role: 'Manager',
+        isActive: true,
+        createdAt: '2026-01-15',
+      },
+      {
+        id: '3',
+        username: 'tech789',
+        email: 'tech@interbat.com',
+        role: 'Technician',
+        isActive: true,
+        createdAt: '2026-02-01',
+      },
+    ];
+  });
+
+  const saveUsersToStorage = (updatedUsers: AdminUser[]) => {
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
+  };
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -129,18 +144,17 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
 
     if (editingId) {
       // Edit user
-      setUsers(
-        users.map((u) =>
-          u.id === editingId
-            ? {
-                ...u,
-                username: formData.username,
-                email: formData.email,
-                role: formData.role,
-              }
-            : u
-        )
+      const updatedUsers = users.map((u) =>
+        u.id === editingId
+          ? {
+              ...u,
+              username: formData.username,
+              email: formData.email,
+              role: formData.role,
+            }
+          : u
       );
+      saveUsersToStorage(updatedUsers);
       setSuccessMessage('User berhasil diperbarui!');
     } else {
       // Add new user
@@ -152,7 +166,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         isActive: true,
         createdAt: new Date().toISOString().split('T')[0],
       };
-      setUsers([...users, newUser]);
+      saveUsersToStorage([...users, newUser]);
       setSuccessMessage('User berhasil ditambahkan!');
     }
 
@@ -163,18 +177,18 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
 
   const handleDeleteUser = (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-      setUsers(users.filter((u) => u.id !== id));
+      const updatedUsers = users.filter((u) => u.id !== id);
+      saveUsersToStorage(updatedUsers);
     }
   };
 
   const toggleUserStatus = (id: string) => {
-    setUsers(
-      users.map((u) =>
-        u.id === id
-          ? { ...u, isActive: !u.isActive }
-          : u
-      )
+    const updatedUsers = users.map((u) =>
+      u.id === id
+        ? { ...u, isActive: !u.isActive }
+        : u
     );
+    saveUsersToStorage(updatedUsers);
   };
 
   return (

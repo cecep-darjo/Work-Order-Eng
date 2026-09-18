@@ -32,8 +32,39 @@ export function Login({ onLogin }: LoginProps) {
 
     try {
       setLoading(true);
-      // TODO: Implementasi autentikasi dengan Supabase atau backend
-      // Untuk sekarang, simulasi login berhasil
+      
+      // Ambil data users dari localStorage untuk dicocokkan
+      const savedUsersStr = localStorage.getItem('admin_users');
+      let isUserValid = false;
+      
+      if (savedUsersStr) {
+        try {
+          const savedUsers = JSON.parse(savedUsersStr);
+          // Cari user yang aktif dan cocok dengan username
+          const matchedUser = savedUsers.find(
+            (u: any) => u.username === username && u.isActive
+          );
+          if (matchedUser) {
+            isUserValid = true;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // Fallback ke default users jika localStorage kosong / tidak ditemukan
+      if (!isUserValid) {
+        const defaultUsers = ['admin123', 'manager456', 'tech789'];
+        if (defaultUsers.includes(username)) {
+          isUserValid = true;
+        }
+      }
+
+      if (!isUserValid) {
+        setErrors(['Username tidak ditemukan atau user dinonaktifkan']);
+        return;
+      }
+
       console.log('Login attempt:', { username, password });
       
       // Simulasi delay API call

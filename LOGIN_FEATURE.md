@@ -14,21 +14,19 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 1. **`src/pages/Login.tsx`** - Halaman Login
    - Form login dengan validasi real-time
    - Error messages yang informatif
+   - Menggunakan `localStorage` untuk memvalidasi user yang baru saja ditambahkan di pengaturan
    - Loading state untuk submit button
    - UI responsif dan modern
 
 2. **`src/lib/validation.ts`** - Utility validasi
-   - `validateUsername()` - Validasi username
-   - `validatePassword()` - Validasi password
+   - `validateUsername()` - Validasi username (hanya huruf, minimal 3 karakter)
+   - `validatePassword()` - Validasi password (huruf + angka, minimal 6 karakter)
    - Pesan error yang jelas
 
 ### File yang Dimodifikasi:
-1. **`src/App.tsx`**
-   - Import `Login` component
-   - State: `isLoggedIn`, `loggedInUsername`
-   - Function: `handleLogin()`, `handleLogout()`
-   - Conditional rendering: tampilkan Login jika belum login
-   - Pass `onLogout` prop ke TopBar
+1. **`src/pages/SettingsPage.tsx`**
+   - Implementasi penyimpanan user baru ke **`localStorage`** (`admin_users`) agar data user tidak hilang saat halaman di-reload.
+   - Sinkronisasi status aktif/nonaktif dan penghapusan user ke `localStorage`.
 
 2. **`src/components/layout/TopBar.tsx`**
    - Import `LogOut` icon dari lucide-react
