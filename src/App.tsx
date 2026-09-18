@@ -117,6 +117,7 @@ export default function App() {
           onMenuClick={() => setSidebarOpen(true)}
           pageTitle={pageTitle(currentPage)}
           onLogout={handleLogout}
+          loggedInUsername={loggedInUsername}
         />
         <main className="flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">
           {renderPage(currentPage, {

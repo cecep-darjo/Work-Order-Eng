@@ -13,6 +13,7 @@ interface TopBarProps {
   onMenuClick: () => void;
   pageTitle: string;
   onLogout?: () => void;
+  loggedInUsername?: string;
 }
 
 export function TopBar({
@@ -24,6 +25,7 @@ export function TopBar({
   onMenuClick,
   pageTitle,
   onLogout,
+  loggedInUsername,
 }: TopBarProps) {
   const [roleOpen, setRoleOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
@@ -92,48 +94,18 @@ export function TopBar({
 
         {/* User selector */}
         <div ref={userRef} className="relative">
-          <button
-            onClick={() => setUserOpen(!userOpen)}
-            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white py-1.5 pl-1.5 pr-2 sm:pr-3 hover:bg-slate-50"
+          <div
+            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white py-1.5 pl-1.5 pr-2 sm:pr-3"
           >
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-xs font-bold text-white">
-              {currentEmployee?.name?.charAt(0) || 'U'}
+              {(loggedInUsername || 'U').charAt(0).toUpperCase()}
             </div>
             <div className="hidden text-left sm:block">
-              <p className="text-xs font-semibold text-slate-700 leading-tight">
-                {currentEmployee?.name || 'Unknown'}
-              </p>
-              <p className="text-[10px] text-slate-400 leading-tight">
-                {currentEmployee?.department?.name || 'Engineering'}
+              <p className="text-sm font-semibold text-slate-700 leading-tight">
+                {loggedInUsername || 'User'}
               </p>
             </div>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
-          </button>
-          {userOpen && (
-            <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-slate-200 bg-white py-1 shadow-xl z-40 max-h-72 overflow-y-auto">
-              <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                {role}
-              </p>
-              {employeesByRole.map((emp) => (
-                <button
-                  key={emp.id}
-                  onClick={() => {
-                    onEmployeeChange(emp);
-                    setUserOpen(false);
-                  }}
-                  className={cn(
-                    'flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-slate-50',
-                    emp.id === currentEmployee?.id ? 'font-semibold text-slate-800' : 'text-slate-600'
-                  )}
-                >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600">
-                    {emp.name.charAt(0)}
-                  </div>
-                  <span className="truncate">{emp.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Logout button */}
