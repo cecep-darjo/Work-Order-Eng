@@ -49,8 +49,8 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 ```
 ✓ Minimal 6 karakter
 ✓ Kombinasi huruf (a-z, A-Z) dan angka (0-9)
-✓ Contoh valid: pass123, secret456, pwd789
-✗ Contoh invalid: pass12 (5 karakter), password (no number), 123456 (no letter)
+✓ Contoh valid: Interbat2026, Engineering2026
+✗ Hindari: pass123, 123456 (akan diblokir oleh "Google Password Manager" karena data breach)
 ```
 
 ## 🎨 UI/UX Features
@@ -92,8 +92,7 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 3. Isi form dengan:
    - **Username**: min 3 karakter, hanya huruf (contoh: `tech`)
    - **Email**: opsional
-   - **Password**: min 6 karakter, huruf + angka (contoh: `pass456`)
-   - **Role**: pilih dari dropdown
+   - **Password**: min 6 karakter, huruf + angka, hindari password pasaran (contoh: `Interbat2026`)
 4. Klik **"Simpan"**
 5. Jika ada error validasi, akan ditampilkan dengan jelas
 6. Jika berhasil, akan muncul pesan success

@@ -113,7 +113,7 @@ export function Login({ onLogin }: LoginProps) {
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Contoh: pass123, secret456
+                Contoh: Interbat2026, Engineering2026 (hindari password pasaran seperti pass123)
               </p>
             </div>
 
@@ -140,7 +140,7 @@ export function Login({ onLogin }: LoginProps) {
           {/* Footer */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-gray-600 text-center">
-              Demo Mode: Username & Password harus kombinasi huruf dan angka (min 6 karakter)
+              Demo Mode: Username (min 3 karakter huruf), Password (min 6 karakter huruf + angka)
             </p>
           </div>
         </div>

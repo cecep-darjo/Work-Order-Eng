@@ -379,7 +379,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">Contoh: pass123, secret456</p>
+                <p className="text-xs text-slate-500 mt-1">Gunakan password yang kuat agar tidak diblokir browser, misal: Interbat2026</p>
               </div>
 
               {/* Role */}
