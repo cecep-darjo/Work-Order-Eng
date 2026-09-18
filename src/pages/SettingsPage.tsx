@@ -31,7 +31,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
     return [
       {
         id: '1',
-        username: 'admin123',
+        username: 'admin',
         email: 'admin@interbat.com',
         role: 'Admin',
         isActive: true,
@@ -39,7 +39,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
       },
       {
         id: '2',
-        username: 'manager456',
+        username: 'manager',
         email: 'manager@interbat.com',
         role: 'Manager',
         isActive: true,
@@ -47,7 +47,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
       },
       {
         id: '3',
-        username: 'tech789',
+        username: 'technician',
         email: 'tech@interbat.com',
         role: 'Technician',
         isActive: true,

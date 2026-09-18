@@ -54,7 +54,7 @@ export function Login({ onLogin }: LoginProps) {
 
       // Fallback ke default users jika localStorage kosong / tidak ditemukan
       if (!isUserValid) {
-        const defaultUsers = ['admin123', 'manager456', 'tech789'];
+        const defaultUsers = ['admin', 'manager', 'technician', 'admin123', 'manager456', 'tech789'];
         if (defaultUsers.includes(username)) {
           isUserValid = true;
         }

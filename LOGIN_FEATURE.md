@@ -70,30 +70,24 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 
 ## 🚀 Cara Menggunakan
 
-### Login:
-1. Buka aplikasi
-2. Anda akan otomatis redirect ke halaman Login
-3. Masukkan username (min 3 char, hanya huruf)
-   - Contoh: `admin`, `mgr`, `op`
-4. Masukkan password (min 6 char, huruf+angka)
-   - Contoh: `pass456`
-5. Klik tombol "Login"
-6. Jika berhasil, Anda akan masuk ke Dashboard
+### Login default (Bawaan Sistem):
+Anda dapat login menggunakan akun default pihak admin/teknisi di bawah ini:
+*   **Username:** `admin` (Role: Admin)
+*   **Username:** `manager` (Role: Manager)
+*   **Username:** `technician` (Role: Technician)
+*   **Password Bawaan:** `admin123` (Atau gunakan password kombinasi huruf + angka minimal 6 karakter bebas lainnya, misal: `Interbat2026`)
 
-### Logout:
-1. Klik tombol "Logout" di TopBar (kanan atas)
-2. Anda akan kembali ke halaman Login
-
-### Tambah User di Pengaturan:
+### Panduan Tambah User di Pengaturan:
 1. Masuk ke halaman **Pengaturan Admin**
 2. Klik tombol **"Tambah User"**
 3. Isi form dengan:
    - **Username**: min 3 karakter, hanya huruf (contoh: `tech`)
    - **Email**: opsional
    - **Password**: min 6 karakter, huruf + angka, hindari password pasaran (contoh: `Interbat2026`)
+   - **Role**: pilih dari dropdown
 4. Klik **"Simpan"**
 5. Jika ada error validasi, akan ditampilkan dengan jelas
-6. Jika berhasil, akan muncul pesan success
+6. Jika berhasil, akan muncul pesan success dan Anda bisa keluar (logout) untuk mencoba masuk dengan user baru tersebut!
 
 ## 💡 Integrasi dengan Backend (Future)
 
