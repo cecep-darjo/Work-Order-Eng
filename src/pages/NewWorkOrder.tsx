@@ -4,7 +4,7 @@ import type { Department, Employee, Equipment, Priority, JobType, WorkOrderInput
 import type { PageKey } from '@/App';
 import { Card } from '@/components/Card';
 import { PRIORITIES, JOB_TYPES } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn, getAdminUsersByRole, type AdminUser } from '@/lib/utils';
 import {
   FilePlus2,
   Save,
@@ -23,6 +23,7 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -36,8 +37,8 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
     equipment_id: null,
     problem_description: '',
     department_id: null,
-    pic_id: null,
-    technician_id: null,
+    pic_username: null,
+    technician_username: null,
   });
 
   const fetchData = useCallback(async () => {
@@ -49,6 +50,12 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
     if (deptRes.data) setDepartments(deptRes.data as Department[]);
     if (empRes.data) setEmployees(empRes.data as Employee[]);
     if (eqRes.data) setEquipment(eqRes.data as Equipment[]);
+    
+    // Load admin users from localStorage for PIC and Technician selection
+    const picUsers = getAdminUsersByRole(['Manager', 'Supervisor']);
+    const techUsers = getAdminUsersByRole(['Technician']);
+    setAdminUsers([...picUsers, ...techUsers]);
+    
     setLoading(false);
   }, []);
 
@@ -60,8 +67,8 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
     ? equipment.filter((e) => e.department_id === form.department_id)
     : equipment;
 
-  const supervisors = employees.filter((e) => e.role === 'Supervisor' || e.role === 'Manager');
-  const technicians = employees.filter((e) => e.role === 'Technician');
+  const supervisors = adminUsers.filter((u) => u.role === 'Supervisor' || u.role === 'Manager');
+  const technicians = adminUsers.filter((u) => u.role === 'Technician');
 
   const handleSubmit = async () => {
     setError('');
@@ -88,10 +95,10 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
         equipment_id: form.equipment_id,
         problem_description: form.problem_description,
         department_id: form.department_id,
-        pic_id: form.pic_id,
-        technician_id: form.technician_id,
-        status: form.technician_id ? 'ASSIGNED' : 'OPEN',
-        assigned_at: form.technician_id ? new Date().toISOString() : null,
+        pic_username: form.pic_username,
+        technician_username: form.technician_username,
+        status: form.technician_username ? 'ASSIGNED' : 'OPEN',
+        assigned_at: form.technician_username ? new Date().toISOString() : null,
       })
       .select()
       .single();
@@ -109,10 +116,10 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
         action: 'CREATED',
         description: 'Work Order dibuat oleh ' + (currentEmployee?.name || 'Engineering'),
         old_status: null,
-        new_status: form.technician_id ? 'ASSIGNED' : 'OPEN',
+        new_status: form.technician_username ? 'ASSIGNED' : 'OPEN',
       });
 
-      if (form.technician_id) {
+      if (form.technician_username) {
         await supabase.from('activity_logs').insert({
           work_order_id: data.id,
           action: 'STATUS_CHANGE',
@@ -164,8 +171,8 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
                   equipment_id: null,
                   problem_description: '',
                   department_id: null,
-                  pic_id: null,
-                  technician_id: null,
+                  pic_username: null,
+                  technician_username: null,
                 });
               }}
               className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
@@ -310,13 +317,13 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
             <p className="text-xs text-slate-400">Opsional, bisa di-assign nanti</p>
             <div className="relative mt-1.5">
               <select
-                value={form.pic_id || ''}
-                onChange={(e) => setForm({ ...form, pic_id: e.target.value || null })}
+                value={form.pic_username || ''}
+                onChange={(e) => setForm({ ...form, pic_username: e.target.value || null })}
                 className="w-full appearance-none rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">Pilih PIC</option>
-                {supervisors.map((e) => (
-                  <option key={e.id} value={e.id}>{e.name} ({e.role})</option>
+                {supervisors.map((u) => (
+                  <option key={u.id} value={u.username}>{u.username} ({u.role})</option>
                 ))}
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -327,13 +334,13 @@ export function NewWorkOrder({ navigate, currentEmployee }: NewWorkOrderProps) {
             <p className="text-xs text-slate-400">Opsional, bisa di-assign nanti</p>
             <div className="relative mt-1.5">
               <select
-                value={form.technician_id || ''}
-                onChange={(e) => setForm({ ...form, technician_id: e.target.value || null })}
+                value={form.technician_username || ''}
+                onChange={(e) => setForm({ ...form, technician_username: e.target.value || null })}
                 className="w-full appearance-none rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">Pilih Teknisi</option>
-                {technicians.map((e) => (
-                  <option key={e.id} value={e.id}>{e.name}</option>
+                {technicians.map((u) => (
+                  <option key={u.id} value={u.username}>{u.username}</option>
                 ))}
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

@@ -27,7 +27,7 @@ export function DailyProgressPage() {
   const fetchData = useCallback(async () => {
     const { data } = await supabase
       .from('work_orders')
-      .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
+      .select('*, department:departments(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
       .in('status', ['IN PROGRESS'])
       .order('created_at', { ascending: false });
     if (data) setWorkOrders(data as WorkOrder[]);

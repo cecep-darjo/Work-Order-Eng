@@ -13,7 +13,7 @@ export function AgingPage() {
   const fetchData = useCallback(async () => {
     const { data } = await supabase
       .from('work_orders')
-      .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), pending_logs(*)')
+      .select('*, department:departments(*), equipment:equipment(*), pending_logs(*)')
       .neq('status', 'CLOSED')
       .order('wo_date', { ascending: true });
     if (data) setWorkOrders(data as WorkOrder[]);

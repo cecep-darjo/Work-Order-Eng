@@ -1,4 +1,30 @@
-import type { WorkOrder, WOStatus } from '@/types';
+import type { WorkOrder, WOStatus, Role } from '@/types';
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  email?: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export function getAdminUsersFromStorage(): AdminUser[] {
+  try {
+    const savedUsers = localStorage.getItem('admin_users');
+    if (savedUsers) {
+      return JSON.parse(savedUsers) as AdminUser[];
+    }
+  } catch (e) {
+    console.error('Failed to parse admin_users from localStorage', e);
+  }
+  return [];
+}
+
+export function getAdminUsersByRole(roles: Role[]): AdminUser[] {
+  const users = getAdminUsersFromStorage();
+  return users.filter((u) => u.isActive && roles.includes(u.role));
+}
 
 export function formatDate(date: string | null): string {
   if (!date) return '-';

@@ -61,8 +61,8 @@ export interface WorkOrder {
   equipment_id: string | null;
   problem_description: string;
   department_id: string | null;
-  pic_id: string | null;
-  technician_id: string | null;
+  pic_username: string | null;
+  technician_username: string | null;
   status: WOStatus;
   action_taken: string | null;
   result: string | null;
@@ -76,8 +76,6 @@ export interface WorkOrder {
   created_at: string;
   updated_at: string;
   department?: Department | null;
-  pic?: Employee | null;
-  technician?: Employee | null;
   equipment?: Equipment | null;
   daily_progress?: DailyProgress[];
   pending_logs?: PendingLog[];
@@ -127,6 +125,6 @@ export interface WorkOrderInput {
   equipment_id: string | null;
   problem_description: string;
   department_id: string | null;
-  pic_id: string | null;
-  technician_id: string | null;
+  pic_username: string | null;
+  technician_username: string | null;
 }

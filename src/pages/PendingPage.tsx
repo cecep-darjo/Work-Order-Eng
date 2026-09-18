@@ -27,7 +27,7 @@ export function PendingPage() {
   const fetchData = useCallback(async () => {
     const { data } = await supabase
       .from('work_orders')
-      .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), pending_logs(*)')
+      .select('*, department:departments(*), equipment:equipment(*), pending_logs(*)')
       .eq('status', 'PENDING')
       .order('pending_at', { ascending: false });
     if (data) setWorkOrders(data as WorkOrder[]);

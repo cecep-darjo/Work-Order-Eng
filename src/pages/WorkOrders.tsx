@@ -5,7 +5,7 @@ import { Card } from '@/components/Card';
 import { StatusBadge, PriorityBadge } from '@/components/Badges';
 import { Modal } from '@/components/Modal';
 import { WO_STATUSES, PRIORITIES, STATUS_FLOW, JOB_TYPES } from '@/lib/constants';
-import { formatDate, formatDateTime, getWOAge, getPendingAge, getCurrentProgress, cn, getAgeColor } from '@/lib/utils';
+import { formatDate, formatDateTime, getWOAge, getPendingAge, getCurrentProgress, cn, getAgeColor, getAdminUsersByRole, type AdminUser } from '@/lib/utils';
 import {
   Search,
   Filter,
@@ -32,6 +32,7 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<WOStatus | 'ALL'>('ALL');
@@ -44,7 +45,7 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
     const [woRes, deptRes, empRes, eqRes] = await Promise.all([
       supabase
         .from('work_orders')
-        .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), daily_progress(*), pending_logs(*), activity_logs(*)')
+        .select('*, department:departments(*), equipment:equipment(*), daily_progress(*), pending_logs(*), activity_logs(*)')
         .order('created_at', { ascending: false }),
       supabase.from('departments').select('*').order('name'),
       supabase.from('employees').select('*, department:departments(*)').eq('is_active', true).order('name'),
@@ -54,6 +55,12 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
     if (deptRes.data) setDepartments(deptRes.data as Department[]);
     if (empRes.data) setEmployees(empRes.data as Employee[]);
     if (eqRes.data) setEquipment(eqRes.data as Equipment[]);
+    
+    // Load admin users from localStorage for PIC and Technician selection
+    const picUsers = getAdminUsersByRole(['Manager', 'Supervisor']);
+    const techUsers = getAdminUsersByRole(['Technician']);
+    setAdminUsers([...picUsers, ...techUsers]);
+    
     setLoading(false);
   }, []);
 
@@ -234,8 +241,8 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
                     ) : '-'}
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-slate-700">{wo.pic?.name || '-'}</p>
-                    <p className="text-xs text-slate-400">{wo.technician?.name || '-'}</p>
+                    <p className="text-slate-700">{wo.pic_username || '-'}</p>
+                    <p className="text-xs text-slate-400">{wo.technician_username || '-'}</p>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={wo.status} /></td>
                   <td className="px-4 py-3">
@@ -302,6 +309,7 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
           departments={departments}
           employees={employees}
           equipment={equipment}
+          adminUsers={adminUsers}
           onClose={() => setSelectedWO(null)}
           onUpdate={fetchData}
           currentRole={currentRole}
@@ -319,17 +327,18 @@ interface WODetailModalProps {
   departments: Department[];
   employees: Employee[];
   equipment: Equipment[];
+  adminUsers: AdminUser[];
   onClose: () => void;
   onUpdate: () => Promise<void>;
   currentRole: Role;
 }
 
-function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdate, currentRole }: WODetailModalProps) {
+function WODetailModal({ wo, departments, employees, equipment, adminUsers, onClose, onUpdate, currentRole }: WODetailModalProps) {
   const [tab, setTab] = useState<'info' | 'progress' | 'pending' | 'activity'>('info');
   const [updating, setUpdating] = useState(false);
   const [editAssign, setEditAssign] = useState(false);
-  const [assignPic, setAssignPic] = useState(wo.pic_id || '');
-  const [assignTech, setAssignTech] = useState(wo.technician_id || '');
+  const [assignPic, setAssignPic] = useState(wo.pic_username || '');
+  const [assignTech, setAssignTech] = useState(wo.technician_username || '');
   const [assignDept, setAssignDept] = useState(wo.department_id || '');
 
   const canEdit = currentRole === 'Admin' || currentRole === 'Manager' || currentRole === 'Supervisor';
@@ -352,8 +361,8 @@ function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdat
   const saveAssignment = async () => {
     setUpdating(true);
     const updates: Record<string, unknown> = {
-      pic_id: assignPic || null,
-      technician_id: assignTech || null,
+      pic_username: assignPic || null,
+      technician_username: assignTech || null,
       department_id: assignDept || null,
     };
     if (wo.status === 'OPEN' && assignTech) {
@@ -365,8 +374,8 @@ function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdat
     setUpdating(false);
   };
 
-  const supervisors = employees.filter((e) => e.role === 'Supervisor' || e.role === 'Manager');
-  const technicians = employees.filter((e) => e.role === 'Technician');
+  const supervisors = adminUsers.filter((u) => u.role === 'Supervisor' || u.role === 'Manager');
+  const technicians = adminUsers.filter((u) => u.role === 'Technician');
 
   return (
     <Modal open={true} onClose={onClose} title={`Detail ${wo.wo_number}`} size="xl">
@@ -468,7 +477,7 @@ function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdat
                     <select value={assignPic} onChange={(e) => setAssignPic(e.target.value)}
                       className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100">
                       <option value="">Pilih PIC</option>
-                      {supervisors.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.role})</option>)}
+                      {supervisors.map((u) => <option key={u.id} value={u.username}>{u.username} ({u.role})</option>)}
                     </select>
                   </div>
                   <div>
@@ -476,7 +485,7 @@ function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdat
                     <select value={assignTech} onChange={(e) => setAssignTech(e.target.value)}
                       className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100">
                       <option value="">Pilih Teknisi</option>
-                      {technicians.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+                      {technicians.map((u) => <option key={u.id} value={u.username}>{u.username}</option>)}
                     </select>
                   </div>
                 </div>
@@ -493,8 +502,8 @@ function WODetailModal({ wo, departments, employees, equipment, onClose, onUpdat
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
-                <InfoField label="PIC" value={wo.pic?.name || '-'} />
-                <InfoField label="Teknisi" value={wo.technician?.name || '-'} />
+                <InfoField label="PIC" value={wo.pic_username || '-'} />
+                <InfoField label="Teknisi" value={wo.technician_username || '-'} />
               </div>
             )}
 

@@ -20,7 +20,7 @@ export function MyWork({ currentEmployee }: MyWorkProps) {
   const fetchData = useCallback(async () => {
     const { data } = await supabase
       .from('work_orders')
-      .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
+      .select('*, department:departments(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
       .order('created_at', { ascending: false });
     if (data) setWorkOrders(data as WorkOrder[]);
     setLoading(false);
@@ -30,11 +30,11 @@ export function MyWork({ currentEmployee }: MyWorkProps) {
     fetchData();
   }, [fetchData]);
 
-  const empId = currentEmployee?.id;
+  const currentUsername = currentEmployee?.name; // Using employee.name as the username
   const myWOs = workOrders.filter((wo) => {
-    if (tab === 'assigned') return wo.technician_id === empId;
-    if (tab === 'pic') return wo.pic_id === empId;
-    return wo.technician_id === empId || wo.pic_id === empId;
+    if (tab === 'assigned') return wo.technician_username === currentUsername;
+    if (tab === 'pic') return wo.pic_username === currentUsername;
+    return wo.technician_username === currentUsername || wo.pic_username === currentUsername;
   });
 
   const myActive = myWOs.filter((w) => w.status !== 'CLOSED' && w.status !== 'COMPLETED');

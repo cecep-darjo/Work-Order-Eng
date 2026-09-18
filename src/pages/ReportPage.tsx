@@ -21,7 +21,7 @@ export function ReportPage() {
     const [woRes, deptRes] = await Promise.all([
       supabase
         .from('work_orders')
-        .select('*, department:departments(*), pic:employees!pic_id(*), technician:employees!technician_id(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
+        .select('*, department:departments(*), equipment:equipment(*), daily_progress(*), pending_logs(*)')
         .order('created_at', { ascending: false }),
       supabase.from('departments').select('*').order('name'),
     ]);
