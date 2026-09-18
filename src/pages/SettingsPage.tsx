@@ -330,10 +330,10 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, username: e.target.value })
                   }
-                  placeholder="Minimal 6 karakter (huruf saja)"
+                  placeholder="Minimal 3 karakter (huruf saja)"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
-                <p className="text-xs text-slate-500 mt-1">Contoh: admin, manager, operator</p>
+                <p className="text-xs text-slate-500 mt-1">Contoh: admin, mgr, op</p>
               </div>
 
               {/* Email */}

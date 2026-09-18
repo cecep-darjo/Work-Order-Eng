@@ -39,10 +39,10 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 
 ### Username:
 ```
-✓ Minimal 6 karakter
+✓ Minimal 3 karakter
 ✓ Hanya huruf (a-z, A-Z)
-✓ Contoh valid: admin, manager, operator, technician, supervisor
-✗ Contoh invalid: user12 (5 karakter), user123 (ada angka), user_123 (ada karakter khusus)
+✓ Contoh valid: admin, mgr, op, tech, sup
+✗ Contoh invalid: ab (2 karakter), user123 (ada angka), user_name (ada karakter khusus)
 ```
 
 ### Password:
@@ -75,8 +75,8 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 ### Login:
 1. Buka aplikasi
 2. Anda akan otomatis redirect ke halaman Login
-3. Masukkan username (min 6 char, hanya huruf)
-   - Contoh: `admin`, `manager`, `operator`
+3. Masukkan username (min 3 char, hanya huruf)
+   - Contoh: `admin`, `mgr`, `op`
 4. Masukkan password (min 6 char, huruf+angka)
    - Contoh: `pass456`
 5. Klik tombol "Login"
@@ -90,7 +90,7 @@ Fitur login telah berhasil ditambahkan ke project Work Order Engineering dengan 
 1. Masuk ke halaman **Pengaturan Admin**
 2. Klik tombol **"Tambah User"**
 3. Isi form dengan:
-   - **Username**: min 6 karakter, hanya huruf (contoh: `technician`)
+   - **Username**: min 3 karakter, hanya huruf (contoh: `tech`)
    - **Email**: opsional
    - **Password**: min 6 karakter, huruf + angka (contoh: `pass456`)
    - **Role**: pilih dari dropdown

@@ -89,12 +89,12 @@ export function Login({ onLogin }: LoginProps) {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Minimal 6 karakter (huruf saja)"
+                placeholder="Minimal 3 karakter (huruf saja)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Contoh: admin, manager, operator
+                Contoh: admin, mgr, op
               </p>
             </div>
 
