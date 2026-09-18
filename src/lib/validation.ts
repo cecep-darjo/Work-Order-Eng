@@ -1,6 +1,7 @@
 /**
  * Validasi username dan password
- * Requirements: min 6 karakter, kombinasi huruf dan angka
+ * Username: min 6 karakter, hanya huruf (a-z, A-Z)
+ * Password: min 6 karakter, kombinasi huruf dan angka
  */
 
 export interface ValidationResult {
@@ -20,16 +21,11 @@ export const validateUsername = (username: string): ValidationResult => {
     errors.push('Username minimal 6 karakter');
   }
 
-  // Check kombinasi huruf dan angka
-  const hasLetter = /[a-zA-Z]/.test(username);
-  const hasNumber = /[0-9]/.test(username);
+  // Check hanya huruf (tidak boleh angka atau karakter khusus)
+  const hasOnlyLetters = /^[a-zA-Z]+$/.test(username);
 
-  if (!hasLetter) {
-    errors.push('Username harus mengandung minimal 1 huruf');
-  }
-
-  if (!hasNumber) {
-    errors.push('Username harus mengandung minimal 1 angka');
+  if (!hasOnlyLetters) {
+    errors.push('Username hanya boleh mengandung huruf (a-z, A-Z)');
   }
 
   return {
