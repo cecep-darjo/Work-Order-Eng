@@ -61,7 +61,11 @@ export function MasterDataPage({ employees, refreshEmployees }: MasterDataPagePr
 
   const handleDelete = async (table: string, id: string) => {
     if (!confirm('Yakin ingin menghapus data ini?')) return;
-    await supabase.from(table).delete().eq('id', id);
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) {
+      alert(`Gagal menghapus data: ${error.message}`);
+      return;
+    }
     await fetchData();
     if (table === 'employees') await refreshEmployees();
   };
@@ -357,11 +361,10 @@ function EditModal({
           description: deptForm.description || null,
           is_active: deptForm.is_active,
         };
-        if (isEdit) {
-          await supabase.from('departments').update(payload).eq('id', item.id);
-        } else {
-          await supabase.from('departments').insert(payload);
-        }
+        const { error: saveError } = isEdit
+          ? await supabase.from('departments').update(payload).eq('id', item.id)
+          : await supabase.from('departments').insert(payload);
+        if (saveError) throw saveError;
       } else if (table === 'employees') {
         if (!empForm.name.trim()) {
           setError('Name wajib diisi');
@@ -376,11 +379,10 @@ function EditModal({
           phone: empForm.phone || null,
           is_active: empForm.is_active,
         };
-        if (isEdit) {
-          await supabase.from('employees').update(payload).eq('id', item.id);
-        } else {
-          await supabase.from('employees').insert(payload);
-        }
+        const { error: saveError } = isEdit
+          ? await supabase.from('employees').update(payload).eq('id', item.id)
+          : await supabase.from('employees').insert(payload);
+        if (saveError) throw saveError;
       } else if (table === 'equipment') {
         if (!eqForm.tag_code.trim() || !eqForm.name.trim() || !eqForm.area.trim()) {
           setError('Tag Code, Name, dan Area wajib diisi');
@@ -394,11 +396,10 @@ function EditModal({
           department_id: eqForm.department_id || null,
           is_active: eqForm.is_active,
         };
-        if (isEdit) {
-          await supabase.from('equipment').update(payload).eq('id', item.id);
-        } else {
-          await supabase.from('equipment').insert(payload);
-        }
+        const { error: saveError } = isEdit
+          ? await supabase.from('equipment').update(payload).eq('id', item.id)
+          : await supabase.from('equipment').insert(payload);
+        if (saveError) throw saveError;
       }
       await onSaved();
     } catch (err: any) {
