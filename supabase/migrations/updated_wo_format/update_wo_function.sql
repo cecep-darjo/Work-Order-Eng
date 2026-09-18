@@ -26,8 +26,8 @@ BEGIN
     dept_code := 'ENG';
   END IF;
 
-  -- Trim and limit length of department code to 3 characters in uppercase
-  dept_code := upper(substring(coalesce(dept_code, 'ENG') from 1 for 3));
+  -- Trim and limit length of department code to 4 characters in uppercase
+  dept_code := upper(substring(coalesce(dept_code, 'ENGN') from 1 for 4));
 
   -- 3. Get individual parts for date (aa and cc)
   year_part := to_char(now(), 'YY'); -- aa (2 digit tahun)
