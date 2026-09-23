@@ -9,6 +9,7 @@ interface AdminUser {
   id: string;
   username: string;
   email?: string;
+  password?: string;
   role: Role;
   isActive: boolean;
   createdAt: string;
@@ -33,6 +34,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         id: '1',
         username: 'admin',
         email: 'admin@interbat.com',
+        password: 'admin',
         role: 'Admin',
         isActive: true,
         createdAt: '2026-01-01',
@@ -41,6 +43,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         id: '2',
         username: 'manager',
         email: 'manager@interbat.com',
+        password: 'manager',
         role: 'Manager',
         isActive: true,
         createdAt: '2026-01-15',
@@ -49,6 +52,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         id: '3',
         username: 'technician',
         email: 'tech@interbat.com',
+        password: 'technician',
         role: 'Technician',
         isActive: true,
         createdAt: '2026-02-01',
@@ -150,6 +154,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
               ...u,
               username: formData.username,
               email: formData.email,
+              password: formData.password || u.password,
               role: formData.role,
             }
           : u
@@ -162,6 +167,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         id: Date.now().toString(),
         username: formData.username,
         email: formData.email,
+        password: formData.password,
         role: formData.role,
         isActive: true,
         createdAt: new Date().toISOString().split('T')[0],

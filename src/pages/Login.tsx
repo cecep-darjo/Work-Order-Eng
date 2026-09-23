@@ -40,12 +40,20 @@ export function Login({ onLogin }: LoginProps) {
       if (savedUsersStr) {
         try {
           const savedUsers = JSON.parse(savedUsersStr);
-          // Cari user yang aktif dan cocok dengan username
+          // Cari user yang aktif dan cocok dengan username dan password
           const matchedUser = savedUsers.find(
             (u: any) => u.username === username && u.isActive
           );
           if (matchedUser) {
-            isUserValid = true;
+            // Cocokkan password (bawaan default jika tidak diset saat migrasi awal)
+            const expectedPassword = matchedUser.password || matchedUser.username;
+            if (password === expectedPassword) {
+              isUserValid = true;
+            } else {
+              setErrors(['Password salah']);
+              setLoading(false);
+              return;
+            }
           }
         } catch (e) {
           console.error(e);
@@ -53,10 +61,18 @@ export function Login({ onLogin }: LoginProps) {
       }
 
       // Fallback ke default users jika localStorage kosong / tidak ditemukan
-      if (!isUserValid) {
-        const defaultUsers = ['admin', 'manager', 'technician', 'admin123', 'manager456', 'tech789'];
-        if (defaultUsers.includes(username)) {
+      if (!isUserValid && errors.length === 0) {
+        const defaultUsers: Record<string, string> = {
+          'admin': 'admin',
+          'manager': 'manager',
+          'technician': 'technician'
+        };
+        if (defaultUsers[username] && defaultUsers[username] === password) {
           isUserValid = true;
+        } else if (defaultUsers[username]) {
+          setErrors(['Password salah']);
+          setLoading(false);
+          return;
         }
       }
 
