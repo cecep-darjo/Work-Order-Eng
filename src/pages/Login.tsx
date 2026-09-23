@@ -16,15 +16,18 @@ export function Login({ onLogin }: LoginProps) {
     e.preventDefault();
     setErrors([]);
 
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
     // Validasi username
-    const usernameValidation = validateUsername(username);
+    const usernameValidation = validateUsername(trimmedUsername);
     if (!usernameValidation.isValid) {
       setErrors(usernameValidation.errors);
       return;
     }
 
     // Validasi password
-    const passwordValidation = validatePassword(password);
+    const passwordValidation = validatePassword(trimmedPassword);
     if (!passwordValidation.isValid) {
       setErrors(passwordValidation.errors);
       return;
@@ -36,8 +39,8 @@ export function Login({ onLogin }: LoginProps) {
       // Ambil data users dari localStorage untuk dicocokkan
       let savedUsersStr = localStorage.getItem('admin_users');
       
-      // Jika localStorage benar-benar kosong, inisialisasi default data di sini
-      if (!savedUsersStr) {
+      // Jika ada isi tetapi tidak mengandung admin default, atau kosong, setel ulang
+      if (!savedUsersStr || !savedUsersStr.includes('"username":"admin"')) {
         const defaultData = [
           {
             id: '1',
@@ -78,12 +81,12 @@ export function Login({ onLogin }: LoginProps) {
           const savedUsers = JSON.parse(savedUsersStr);
           // Cari user yang aktif dan cocok dengan username dan password
           const matchedUser = savedUsers.find(
-            (u: any) => u.username.toLowerCase() === username.toLowerCase() && u.isActive
+            (u: any) => u.username.toLowerCase() === trimmedUsername.toLowerCase() && u.isActive
           );
           if (matchedUser) {
             // Cocokkan password (bawaan default jika tidak diset saat migrasi awal)
             const expectedPassword = matchedUser.password || matchedUser.username;
-            if (password === expectedPassword) {
+            if (trimmedPassword === expectedPassword) {
               isUserValid = true;
             } else {
               setErrors(['Password salah']);
@@ -98,16 +101,17 @@ export function Login({ onLogin }: LoginProps) {
 
       if (!isUserValid) {
         setErrors(['Username tidak ditemukan atau user dinonaktifkan']);
+        setLoading(false);
         return;
       }
 
-      console.log('Login attempt:', { username, password });
+      console.log('Login attempt:', { username: trimmedUsername, password: trimmedPassword });
       
       // Simulasi delay API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Login berhasil
-      onLogin(username);
+      onLogin(trimmedUsername);
     } catch (error) {
       setErrors(['Login gagal. Periksa kembali username dan password.']);
       console.error('Login error:', error);
