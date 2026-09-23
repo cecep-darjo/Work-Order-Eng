@@ -54,12 +54,12 @@ export default function App() {
   }, [fetchEmployees]);
 
   useEffect(() => {
-    if (employees.length > 0 && !currentEmployee) {
+    if (employees.length > 0 && !currentEmployee && !isLoggedIn) {
       const admin = employees.find((e) => e.role === 'Admin') || employees[0];
       setCurrentEmployee(admin);
       setCurrentRole(admin.role);
     }
-  }, [employees, currentEmployee]);
+  }, [employees, currentEmployee, isLoggedIn]);
 
   const handleRoleChange = (role: Role) => {
     setCurrentRole(role);
@@ -75,11 +75,45 @@ export default function App() {
   const handleLogin = (username: string) => {
     setLoggedInUsername(username);
     setIsLoggedIn(true);
+
+    // Dapatkan role berdasarkan user yang login dari localStorage atau default users
+    let matchedRole: Role = 'Admin';
+    const savedUsersStr = localStorage.getItem('admin_users');
+    if (savedUsersStr) {
+      try {
+        const savedUsers = JSON.parse(savedUsersStr);
+        const matchedUser = savedUsers.find((u: any) => u.username === username);
+        if (matchedUser) {
+          matchedRole = matchedUser.role;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      // Fallback
+      if (username === 'manager') matchedRole = 'Manager';
+      if (username === 'technician') matchedRole = 'Technician';
+    }
+
+    setCurrentRole(matchedRole);
+    // Setup temporary currentEmployee mock matching the logged in user
+    setCurrentEmployee({
+      id: username,
+      name: username,
+      role: matchedRole,
+      department_id: null,
+      email: `${username}@interbat.com`,
+      phone: null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setLoggedInUsername('');
+    setCurrentEmployee(null);
     setCurrentPage('dashboard');
   };
 

@@ -29,13 +29,15 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         console.error('Failed to parse admin_users from localStorage', e);
       }
     }
-    return [
+    
+    // Inisialisasi default users dan simpan langsung ke localStorage agar langsung terbaca di login
+    const defaultData = [
       {
         id: '1',
         username: 'admin',
         email: 'admin@interbat.com',
         password: 'admin123',
-        role: 'Admin',
+        role: 'Admin' as Role,
         isActive: true,
         createdAt: '2026-01-01',
       },
@@ -44,7 +46,7 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         username: 'manager',
         email: 'manager@interbat.com',
         password: 'manager456',
-        role: 'Manager',
+        role: 'Manager' as Role,
         isActive: true,
         createdAt: '2026-01-15',
       },
@@ -53,11 +55,13 @@ export function SettingsPage({ navigate }: SettingsPageProps) {
         username: 'technician',
         email: 'tech@interbat.com',
         password: 'technician789',
-        role: 'Technician',
+        role: 'Technician' as Role,
         isActive: true,
         createdAt: '2026-02-01',
       },
     ];
+    localStorage.setItem('admin_users', JSON.stringify(defaultData));
+    return defaultData;
   });
 
   const saveUsersToStorage = (updatedUsers: AdminUser[]) => {
