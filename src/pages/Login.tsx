@@ -34,7 +34,43 @@ export function Login({ onLogin }: LoginProps) {
       setLoading(true);
       
       // Ambil data users dari localStorage untuk dicocokkan
-      const savedUsersStr = localStorage.getItem('admin_users');
+      let savedUsersStr = localStorage.getItem('admin_users');
+      
+      // Jika localStorage benar-benar kosong, inisialisasi default data di sini
+      if (!savedUsersStr) {
+        const defaultData = [
+          {
+            id: '1',
+            username: 'admin',
+            email: 'admin@interbat.com',
+            password: 'admin123',
+            role: 'Admin',
+            isActive: true,
+            createdAt: '2026-01-01',
+          },
+          {
+            id: '2',
+            username: 'manager',
+            email: 'manager@interbat.com',
+            password: 'manager456',
+            role: 'Manager',
+            isActive: true,
+            createdAt: '2026-01-15',
+          },
+          {
+            id: '3',
+            username: 'technician',
+            email: 'tech@interbat.com',
+            password: 'technician789',
+            role: 'Technician',
+            isActive: true,
+            createdAt: '2026-02-01',
+          },
+        ];
+        localStorage.setItem('admin_users', JSON.stringify(defaultData));
+        savedUsersStr = JSON.stringify(defaultData);
+      }
+
       let isUserValid = false;
       
       if (savedUsersStr) {
@@ -42,7 +78,7 @@ export function Login({ onLogin }: LoginProps) {
           const savedUsers = JSON.parse(savedUsersStr);
           // Cari user yang aktif dan cocok dengan username dan password
           const matchedUser = savedUsers.find(
-            (u: any) => u.username === username && u.isActive
+            (u: any) => u.username.toLowerCase() === username.toLowerCase() && u.isActive
           );
           if (matchedUser) {
             // Cocokkan password (bawaan default jika tidak diset saat migrasi awal)
@@ -57,22 +93,6 @@ export function Login({ onLogin }: LoginProps) {
           }
         } catch (e) {
           console.error(e);
-        }
-      }
-
-      // Fallback ke default users jika localStorage kosong / tidak ditemukan
-      if (!isUserValid && errors.length === 0) {
-        const defaultUsers: Record<string, string> = {
-          'admin': 'admin123',
-          'manager': 'manager456',
-          'technician': 'technician789'
-        };
-        if (defaultUsers[username] && defaultUsers[username] === password) {
-          isUserValid = true;
-        } else if (defaultUsers[username]) {
-          setErrors(['Password salah']);
-          setLoading(false);
-          return;
         }
       }
 

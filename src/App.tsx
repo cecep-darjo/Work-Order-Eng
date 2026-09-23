@@ -82,7 +82,7 @@ export default function App() {
     if (savedUsersStr) {
       try {
         const savedUsers = JSON.parse(savedUsersStr);
-        const matchedUser = savedUsers.find((u: any) => u.username === username);
+        const matchedUser = savedUsers.find((u: any) => u.username.toLowerCase() === username.toLowerCase());
         if (matchedUser) {
           matchedRole = matchedUser.role;
         }
@@ -91,8 +91,8 @@ export default function App() {
       }
     } else {
       // Fallback
-      if (username === 'manager') matchedRole = 'Manager';
-      if (username === 'technician') matchedRole = 'Technician';
+      if (username.toLowerCase() === 'manager') matchedRole = 'Manager';
+      if (username.toLowerCase() === 'technician') matchedRole = 'Technician';
     }
 
     setCurrentRole(matchedRole);
