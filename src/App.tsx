@@ -160,6 +160,7 @@ export default function App() {
             employees,
             navigate,
             refreshEmployees: fetchEmployees,
+            loggedInUsername,
           })}
         </main>
       </div>
@@ -189,6 +190,7 @@ interface PageProps {
   employees: Employee[];
   navigate: (page: PageKey) => void;
   refreshEmployees: () => Promise<void>;
+  loggedInUsername: string;
 }
 
 function renderPage(page: PageKey, props: PageProps) {
@@ -196,7 +198,7 @@ function renderPage(page: PageKey, props: PageProps) {
     case 'dashboard':
       return <Dashboard navigate={props.navigate} />;
     case 'work-orders':
-      return <WorkOrders currentRole={props.currentRole} />;
+      return <WorkOrders currentRole={props.currentRole} loggedInUsername={props.loggedInUsername} />;
     case 'new-wo':
       return (
         <NewWorkOrder

@@ -25,9 +25,10 @@ import {
 
 interface WorkOrdersProps {
   currentRole: Role;
+  loggedInUsername: string;
 }
 
-export function WorkOrders({ currentRole }: WorkOrdersProps) {
+export function WorkOrders({ currentRole, loggedInUsername }: WorkOrdersProps) {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -69,6 +70,11 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
   }, [fetchData]);
 
   const filtered = workOrders.filter((wo) => {
+    // Jika role-nya adalah Technician, batasi hanya melihat WO yang ditugaskan ke dirinya (technician_username)
+    if (currentRole === 'Technician' && wo.technician_username !== loggedInUsername) {
+      return false;
+    }
+
     if (statusFilter !== 'ALL' && wo.status !== statusFilter) return false;
     if (deptFilter !== 'ALL' && wo.department_id !== deptFilter) return false;
     if (priorityFilter !== 'ALL' && wo.priority !== priorityFilter) return false;
@@ -313,6 +319,7 @@ export function WorkOrders({ currentRole }: WorkOrdersProps) {
           onClose={() => setSelectedWO(null)}
           onUpdate={fetchData}
           currentRole={currentRole}
+          loggedInUsername={loggedInUsername}
         />
       )}
     </div>
@@ -331,9 +338,10 @@ interface WODetailModalProps {
   onClose: () => void;
   onUpdate: () => Promise<void>;
   currentRole: Role;
+  loggedInUsername: string;
 }
 
-function WODetailModal({ wo, departments, employees, equipment, adminUsers, onClose, onUpdate, currentRole }: WODetailModalProps) {
+function WODetailModal({ wo, departments, employees, equipment, adminUsers, onClose, onUpdate, currentRole, loggedInUsername }: WODetailModalProps) {
   const [tab, setTab] = useState<'info' | 'progress' | 'pending' | 'activity'>('info');
   const [updating, setUpdating] = useState(false);
   const [editAssign, setEditAssign] = useState(false);
@@ -342,6 +350,8 @@ function WODetailModal({ wo, departments, employees, equipment, adminUsers, onCl
   const [assignDept, setAssignDept] = useState(wo.department_id || '');
 
   const canEdit = currentRole === 'Admin' || currentRole === 'Manager' || currentRole === 'Supervisor';
+  const isTechnician = currentRole === 'Technician';
+  const isTechnicianAssigned = isTechnician && wo.technician_username === loggedInUsername;
   const age = getWOAge(wo);
   const pendingAge = getPendingAge(wo);
   const progress = getCurrentProgress(wo);
@@ -459,8 +469,9 @@ function WODetailModal({ wo, departments, employees, equipment, adminUsers, onCl
               </p>
             </div>
 
-            {/* Assignment */}
-            {editAssign ? (
+            {/* Assignment - Only visible to Admin/Manager/Supervisor */}
+            {canEdit && (
+              editAssign ? (
               <div className="space-y-3 rounded-xl border border-blue-200 bg-blue-50/50 p-4">
                 <p className="text-sm font-semibold text-blue-700">Edit Assignment</p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -501,6 +512,15 @@ function WODetailModal({ wo, departments, employees, equipment, adminUsers, onCl
                 </div>
               </div>
             ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <InfoField label="PIC" value={wo.pic_username || '-'} />
+                <InfoField label="Teknisi" value={wo.technician_username || '-'} />
+              </div>
+            )
+            )}
+
+            {/* For Technicians - Show assignment info but no edit */}
+            {isTechnician && (
               <div className="grid grid-cols-2 gap-3">
                 <InfoField label="PIC" value={wo.pic_username || '-'} />
                 <InfoField label="Teknisi" value={wo.technician_username || '-'} />
@@ -659,6 +679,31 @@ function WODetailModal({ wo, departments, employees, equipment, adminUsers, onCl
               {next === 'IN PROGRESS' && <Loader className="h-4 w-4" />}
               {next === 'ASSIGNED' && <UserCheck className="h-4 w-4" />}
               {next === 'CLOSED' && <CheckCircle2 className="h-4 w-4" />}
+              Pindah ke {next}
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Technician Actions - Allow updating progress & status changes */}
+      {isTechnicianAssigned && (
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+          {allowedNext.map((next) => (
+            <button
+              key={next}
+              onClick={() => updateStatus(next)}
+              disabled={updating}
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50',
+                next === 'PENDING' ? 'bg-red-100 text-red-700 hover:bg-red-200' :
+                next === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' :
+                'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              )}
+            >
+              {next === 'PENDING' && <AlertTriangle className="h-4 w-4" />}
+              {next === 'COMPLETED' && <CheckCircle2 className="h-4 w-4" />}
+              {next === 'IN PROGRESS' && <Loader className="h-4 w-4" />}
               Pindah ke {next}
               <ArrowRight className="h-3 w-3" />
             </button>
