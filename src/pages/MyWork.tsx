@@ -10,9 +10,10 @@ import { ClipboardList, Eye, User, Loader, CalendarCheck, CalendarX } from 'luci
 interface MyWorkProps {
   currentEmployee: Employee | null;
   currentRole: Role;
+  loggedInUsername: string;
 }
 
-export function MyWork({ currentEmployee }: MyWorkProps) {
+export function MyWork({ currentEmployee, currentRole, loggedInUsername }: MyWorkProps) {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'assigned' | 'pic' | 'all'>('assigned');
@@ -30,11 +31,14 @@ export function MyWork({ currentEmployee }: MyWorkProps) {
     fetchData();
   }, [fetchData]);
 
-  const currentUsername = currentEmployee?.name; // Using employee.name as the username
+  const isTechnician = currentRole === 'Technician';
   const myWOs = workOrders.filter((wo) => {
-    if (tab === 'assigned') return wo.technician_username === currentUsername;
-    if (tab === 'pic') return wo.pic_username === currentUsername;
-    return wo.technician_username === currentUsername || wo.pic_username === currentUsername;
+    if (isTechnician) {
+      return wo.technician_username === loggedInUsername;
+    }
+    if (tab === 'assigned') return wo.technician_username === loggedInUsername || wo.pic_username === loggedInUsername;
+    if (tab === 'pic') return wo.pic_username === loggedInUsername;
+    return wo.technician_username === loggedInUsername || wo.pic_username === loggedInUsername;
   });
 
   const myActive = myWOs.filter((w) => w.status !== 'CLOSED' && w.status !== 'COMPLETED');
@@ -76,24 +80,26 @@ export function MyWork({ currentEmployee }: MyWorkProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
-        {([
-          { key: 'assigned', label: 'Sebagai Teknisi' },
-          { key: 'pic', label: 'Sebagai PIC' },
-          { key: 'all', label: 'Semua' },
-        ] as const).map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn(
-              'border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
-              tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {!isTechnician && (
+        <div className="flex gap-1 border-b border-slate-200">
+          {([
+            { key: 'assigned', label: 'Sebagai Teknisi' },
+            { key: 'pic', label: 'Sebagai PIC' },
+            { key: 'all', label: 'Semua' },
+          ] as const).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={cn(
+                'border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
+                tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Active WOs */}
       <div>

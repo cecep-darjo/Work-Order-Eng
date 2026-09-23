@@ -211,6 +211,7 @@ function renderPage(page: PageKey, props: PageProps) {
         <MyWork
           currentEmployee={props.currentEmployee}
           currentRole={props.currentRole}
+          loggedInUsername={props.loggedInUsername}
         />
       );
     case 'daily-progress':
