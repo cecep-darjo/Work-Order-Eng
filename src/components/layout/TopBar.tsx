@@ -56,40 +56,13 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Role selector */}
-        <div ref={roleRef} className="relative">
-          <button
-            onClick={() => setRoleOpen(!roleOpen)}
-            className={cn(
-              'flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all',
-              ROLE_COLORS[role],
-              'hover:opacity-90'
-            )}
-          >
-            <span className="hidden sm:inline">Role:</span>
-            {role}
-            <ChevronDown className="h-4 w-4" />
-          </button>
-          {roleOpen && (
-            <div className="absolute right-0 top-full mt-1 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-xl z-40">
-              {ROLES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => {
-                    onRoleChange(r);
-                    setRoleOpen(false);
-                  }}
-                  className={cn(
-                    'flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-slate-50',
-                    r === role ? 'font-semibold text-slate-800' : 'text-slate-600'
-                  )}
-                >
-                  {r}
-                  {r === role && <span className="h-2 w-2 rounded-full bg-blue-500" />}
-                </button>
-              ))}
-            </div>
-          )}
+        {/* Role display */}
+        <div className={cn(
+          'flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold',
+          ROLE_COLORS[role]
+        )}>
+          <span className="hidden sm:inline">Role:</span>
+          {role}
         </div>
 
         {/* User selector */}
